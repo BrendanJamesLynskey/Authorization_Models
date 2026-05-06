@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Authorization Models — RBAC, ABAC, ReBAC &amp; Policy-as-Code</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css">
+<style>
+  :root { --amber:#f5a623; --green:#4ecb8d; --purple:#a78bfa; --blue:#60a5fa; --red:#f87171;
+          --bg:#0a0a0f; --bg2:#10101a; --bg3:#181824; --border:#2a2a3a; --text:#e8e8f0; --muted:#8888a8; }
+  .reveal-viewport { background: var(--bg); }
+  .reveal .slides section { background: transparent; }
+  .reveal { font-family: 'DM Sans', sans-serif; color: var(--text); }
+  .reveal h1, .reveal h2, .reveal h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+  .reveal h1 { font-size: 1.6em; color: var(--amber); line-height: 1.1; }
+  .reveal h2 { font-size: 1.1em; color: var(--amber); margin-bottom: .2em; }
+  .reveal h3 { font-size: .78em; color: var(--green); margin-bottom: .15em; }
+  .reveal p  { font-size: .56em; line-height: 1.45; color: var(--text); }
+  .reveal li { font-size: .54em; line-height: 1.45; margin-bottom: .1em; }
+  .reveal code { font-family: 'JetBrains Mono', monospace; font-size: .72em; }
+  .reveal pre  { box-shadow: none; background: var(--bg3); border: 1px solid var(--border);
+                 border-radius: 6px; padding: .3em .5em; margin: .25em 0; }
+  .reveal pre code { font-size: .52em; line-height: 1.35; background: transparent; color: #cdd6f4; }
+  .slide-hdr { display:flex; align-items:center; gap:.4em; border-bottom:1px solid var(--border);
+               padding-bottom:.2em; margin-bottom:.3em; }
+  .slide-hdr .tag { font-family:'JetBrains Mono',monospace; font-size:.42em; font-weight:500;
+                    color:var(--bg); background:var(--amber); padding:.1em .4em; border-radius:3px; letter-spacing:.04em; }
+  .slide-hdr h2 { margin:0; font-size:.95em; }
+  .cols { display:grid; gap:.5em; }
+  .cols-2 { grid-template-columns:1fr 1fr; }
+  .cols-3 { grid-template-columns:1fr 1fr 1fr; }
+  .cols-6040 { grid-template-columns:6fr 4fr; }
+  .cols-4060 { grid-template-columns:4fr 6fr; }
+  .card { background:var(--bg2); border:1px solid var(--border); border-radius:6px; padding:.35em .6em; }
+  .card.amber { border-left:3px solid var(--amber); }
+  .card.green { border-left:3px solid var(--green); }
+  .card.purple{ border-left:3px solid var(--purple); }
+  .card.blue  { border-left:3px solid var(--blue); }
+  .card.red   { border-left:3px solid var(--red); }
+  .card h3 { font-size:.64em; margin:0 0 .12em; }
+  .card p  { font-size:.52em; margin:0; color:#b8b8d0; }
+  .card ul { margin:0; padding-left:1em; }
+  .card li { font-size:.52em; color:#b8b8d0; margin-bottom:.02em; }
+  .reveal table { width:100%; border-collapse:collapse; font-size:.5em; }
+  .reveal table th { background:var(--bg3); color:var(--amber); font-weight:600; padding:.2em .4em; border:1px solid var(--border); text-align:left; }
+  .reveal table td { padding:.18em .4em; border:1px solid var(--border); color:#ccc; }
+  .reveal table tr:nth-child(even) td { background:#0e0e18; }
+  .a{color:var(--amber);font-weight:600;} .g{color:var(--green);font-weight:600;}
+  .p{color:var(--purple);font-weight:600;} .b{color:var(--blue);font-weight:600;}
+  .r{color:var(--red);font-weight:600;} .mono{font-family:'JetBrains Mono',monospace;}
+  svg.diagram { display:block; margin:0 auto; overflow:visible; }
+  .pill { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:.44em; padding:.08em .4em; border-radius:99px; border:1px solid; margin:0 .08em; }
+  .pill.amber{color:var(--amber); border-color:var(--amber);} .pill.green{color:var(--green); border-color:var(--green);}
+  .pill.purple{color:var(--purple); border-color:var(--purple);} .pill.blue{color:var(--blue); border-color:var(--blue);}
+  .reveal .slide-footer{display:none;}
+  .title-slide h1{font-size:1.8em;}
+  .title-slide .subtitle{font-size:.7em; color:var(--green); font-family:'DM Sans',sans-serif; font-weight:300; letter-spacing:.04em; margin:.3em 0 .6em;}
+  .title-slide .meta{font-size:.48em; color:var(--muted); font-family:'JetBrains Mono',monospace;}
+  .ss-row{display:flex; gap:.25em; align-items:center; margin:.1em 0; font-size:.55em; font-family:'JetBrains Mono',monospace;}
+  .ss-node{padding:.2em .55em; border-radius:5px; font-size:.9em; background:var(--bg3); border:1px solid var(--border); color:var(--text);}
+  .ss-node.active{background:#1a2a1a; border-color:var(--green); color:var(--green);}
+  .ss-node.done{background:#1a1a2a; border-color:var(--purple); color:var(--purple);}
+  .ss-arrow{color:var(--amber);}
+  .reveal ul, .reveal ol { margin:.15em 0 .15em 1em; }
+  .reveal .slides > section { display:flex !important; flex-direction:column !important; overflow-y:auto !important; align-items:stretch !important; justify-content:flex-start !important; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+
+<!-- ═══ SLIDE 01 — TITLE ═══ -->
+<section class="title-slide" data-background-color="#0a0a0f">
+  <div style="text-align:left; max-width:820px; margin:0 auto; padding:1em 0;">
+    <div style="font-family:'JetBrains Mono',monospace; font-size:.5em; color:var(--muted); margin-bottom:.4em; letter-spacing:.1em;">
+      TECHNICAL PRESENTATION
+    </div>
+    <h1>Authorization<br>Models</h1>
+    <div class="subtitle">RBAC &middot; ABAC &middot; ReBAC &middot; Policy-as-Code</div>
+    <div style="width:60px; height:3px; background:var(--amber); margin-bottom:1.4em;"></div>
+    <div style="display:flex; gap:1.2em; flex-wrap:wrap; margin-bottom:1em;">
+      <span class="pill amber">RBAC</span>
+      <span class="pill green">ABAC</span>
+      <span class="pill purple">ReBAC / Zanzibar</span>
+      <span class="pill blue">OPA / Cedar</span>
+    </div>
+    <div class="ss-row" style="margin-top:0.6em;">
+      <span class="ss-node active">subject</span>
+      <span class="ss-arrow">+</span>
+      <span class="ss-node active">action</span>
+      <span class="ss-arrow">+</span>
+      <span class="ss-node active">resource</span>
+      <span class="ss-arrow">→</span>
+      <span class="ss-node done">allow / deny</span>
+    </div>
+    <p style="max-width:660px; color:#a0a0c0; font-size:.56em; line-height:1.5; margin-top:1em;">
+      Once you've authenticated the user and got a token — what may they actually do? The decision-making layer the rest of the Identity &amp; Access series feeds into.
+    </p>
+    <div class="meta" style="margin-top:1.4em;">
+      Model &nbsp;·&nbsp; Decide &nbsp;·&nbsp; Enforce &nbsp;·&nbsp; Audit
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ SLIDE 02 — TOPICS ═══ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">01</span><h2>Topics</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber">
+        <h3 class="a">Foundations</h3>
+        <ul>
+          <li>The PEP / PDP / PAP / PIP vocabulary</li>
+          <li>DAC, MAC, RBAC, ABAC, ReBAC — the historical arc</li>
+          <li>Subject + action + resource + context</li>
+        </ul>
+      </div>
+      <div class="card green" style="margin-top:0.5em;">
+        <h3 class="g">The classical models</h3>
+        <ul>
+          <li>RBAC — roles, role hierarchies, separation of duties</li>
+          <li>ABAC — attributes, predicates, XACML history</li>
+          <li>ReBAC — Google Zanzibar, relationship tuples</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3 class="p">Policy-as-Code</h3>
+        <ul>
+          <li>OPA / Rego — the generalist</li>
+          <li>Cedar — Amazon's purpose-built language</li>
+          <li>OpenFGA / SpiceDB — Zanzibar at scale</li>
+          <li>In-app vs sidecar vs external service</li>
+        </ul>
+      </div>
+      <div class="card blue" style="margin-top:0.5em;">
+        <h3 class="b">Operational</h3>
+        <ul>
+          <li>Performance — caching, decision latency</li>
+          <li>Auditing &amp; explainability</li>
+          <li>Choosing a model</li>
+          <li>Migration patterns</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ SLIDE 03 — PEP/PDP ═══ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">02</span><h2>The PEP / PDP / PAP / PIP Vocabulary</h2></div>
+  <p>Every authorisation system separates "asking the question" from "answering it" from "where the rules live" from "where the data lives". The four-letter abbreviations come from XACML, but the architecture survives every modern engine.</p>
+
+  <svg class="diagram" viewBox="0 0 940 280" width="900" height="280">
+    <rect x="20"  y="40" width="180" height="60" rx="8" fill="#1a1a2a" stroke="#60a5fa" stroke-width="1.5"/>
+    <text x="110" y="65" text-anchor="middle" fill="#60a5fa" font-family="Playfair Display,serif" font-size="14" font-weight="700">PEP</text>
+    <text x="110" y="83" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono,monospace" font-size="9">Policy Enforcement Point</text>
+    <text x="110" y="96" text-anchor="middle" fill="#888" font-family="JetBrains Mono,monospace" font-size="8">app code, gateway, sidecar</text>
+
+    <rect x="380" y="40" width="180" height="60" rx="8" fill="#1a1a2a" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="470" y="65" text-anchor="middle" fill="#a78bfa" font-family="Playfair Display,serif" font-size="14" font-weight="700">PDP</text>
+    <text x="470" y="83" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono,monospace" font-size="9">Policy Decision Point</text>
+    <text x="470" y="96" text-anchor="middle" fill="#888" font-family="JetBrains Mono,monospace" font-size="8">OPA, Cedar, OpenFGA, …</text>
+
+    <rect x="740" y="20" width="180" height="50" rx="8" fill="#1a1a2a" stroke="#f5a623" stroke-width="1.5"/>
+    <text x="830" y="42" text-anchor="middle" fill="#f5a623" font-family="Playfair Display,serif" font-size="14" font-weight="700">PAP</text>
+    <text x="830" y="58" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono,monospace" font-size="9">Policy Admin Point — git / UI</text>
+
+    <rect x="740" y="100" width="180" height="50" rx="8" fill="#1a1a2a" stroke="#4ecb8d" stroke-width="1.5"/>
+    <text x="830" y="122" text-anchor="middle" fill="#4ecb8d" font-family="Playfair Display,serif" font-size="14" font-weight="700">PIP</text>
+    <text x="830" y="138" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono,monospace" font-size="9">Policy Information Point — DB / IdP</text>
+
+    <line x1="200" y1="70" x2="380" y2="70" stroke="#888" stroke-width="1.2" marker-end="url(#az03a)"/>
+    <text x="290" y="62" text-anchor="middle" fill="#888" font-family="JetBrains Mono,monospace" font-size="9">"may S do A on R, given context C?"</text>
+
+    <line x1="380" y1="86" x2="200" y2="86" stroke="#888" stroke-width="1.2" marker-end="url(#az03b)"/>
+    <text x="290" y="78" text-anchor="middle" fill="#888" font-family="JetBrains Mono,monospace" font-size="9">allow / deny + obligations</text>
+
+    <line x1="560" y1="60" x2="740" y2="55" stroke="#888" stroke-width="1.2" stroke-dasharray="4,3"/>
+    <text x="650" y="50" text-anchor="middle" fill="#888" font-family="JetBrains Mono,monospace" font-size="9">policy bundle pull</text>
+    <line x1="560" y1="85" x2="740" y2="125" stroke="#888" stroke-width="1.2" stroke-dasharray="4,3"/>
+    <text x="650" y="117" text-anchor="middle" fill="#888" font-family="JetBrains Mono,monospace" font-size="9">attribute lookup</text>
+
+    <text x="465" y="210" text-anchor="middle" fill="#888" font-family="DM Sans,sans-serif" font-size="11">PEP asks the question. PDP decides. PAP curates the policy. PIP supplies missing facts.</text>
+    <text x="465" y="232" text-anchor="middle" fill="#888" font-family="DM Sans,sans-serif" font-size="11">The model lets you change the engine, the policy language, or the data source independently.</text>
+
+    <defs>
+      <marker id="az03a" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#888"/></marker>
+      <marker id="az03b" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#888"/></marker>
+    </defs>
+  </svg>
+
+  <div class="cols cols-2" style="margin-top:0.2em;">
+    <div class="card amber">
+      <h3 class="a">A request, in protocol-agnostic form</h3>
+<pre><code>{
+  "subject":  { "id":"alice", "role":"editor", "team":"emea" },
+  "action":   "document.publish",
+  "resource": { "type":"document", "id":"d_42",
+                "owner":"alice", "classification":"public" },
+  "context":  { "ip":"203.0.113.5", "time":"2026-05-06T09:00Z",
+                "auth_strength":"mfa" }
+}</code></pre>
+    </div>
+    <div class="card green">
+      <h3 class="g">A response</h3>
+<pre><code>{
+  "decision": "allow",
+  "obligations": [ "log:audit", "redact:ssn" ],
+  "explanation": "rule allow-editor-on-own-public-doc"
+}</code></pre>
+      <p style="margin-top:.25em;"><em>Obligations</em> are side effects the PEP must apply (e.g. mask a field, log to audit). Explainability is what auditors actually want.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ SLIDE 04 — HISTORICAL ARC ═══ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">03</span><h2>The Historical Arc — DAC → MAC → RBAC → ABAC → ReBAC</h2></div>
+
+  <table>
+    <thead><tr><th>Model</th><th>Era</th><th>The idea</th><th>Where it survives</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="r">DAC</span> Discretionary Access Control</td>
+        <td>1970s</td>
+        <td>The owner of a resource grants access to whoever they like.</td>
+        <td>Unix file permissions; shared-folder ACLs; Google Drive sharing.</td>
+      </tr>
+      <tr>
+        <td><span class="r">MAC</span> Mandatory Access Control</td>
+        <td>1970s</td>
+        <td>Central authority assigns labels to subjects and resources; access is determined by lattice rules (Bell-LaPadula).</td>
+        <td>Government &amp; defence systems; SELinux; AppArmor.</td>
+      </tr>
+      <tr>
+        <td><span class="a">RBAC</span> Role-Based Access Control</td>
+        <td>1992 (Ferraiolo &amp; Kuhn) → ANSI standard 2004</td>
+        <td>Subjects are assigned roles; permissions are attached to roles.</td>
+        <td>Almost every enterprise app from 1995–2015.</td>
+      </tr>
+      <tr>
+        <td><span class="a">ABAC</span> Attribute-Based Access Control</td>
+        <td>2000s — XACML 1.0 in 2003</td>
+        <td>Decisions evaluated as predicates over <em>attributes</em> of subject, resource, action, environment.</td>
+        <td>Government, finance, healthcare; modern Policy-as-Code (OPA, Cedar) is ABAC at heart.</td>
+      </tr>
+      <tr>
+        <td><span class="g">ReBAC</span> Relationship-Based Access Control</td>
+        <td>2019 (Google Zanzibar paper)</td>
+        <td>Authorisation derived from a graph of <em>relationships</em> between subjects and resources.</td>
+        <td>Modern collaboration apps (Google Drive, GitHub, Notion); OpenFGA, SpiceDB, Warrant.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="cols cols-2" style="margin-top:0.4em;">
+    <div class="card amber">
+      <h3 class="a">A useful framing</h3>
+      <p>Each model is a different way to compress the boolean function <em>"may subject S do action A on resource R?"</em>. RBAC compresses by clustering subjects (roles); ABAC by parameterising the condition (predicates); ReBAC by exploiting the structure of the resource graph (relationships).</p>
+    </div>
+    <div class="card green">
+      <h3 class="g">In practice — a hybrid</h3>
+      <p>Real systems mix models. Google Drive: ReBAC on documents, RBAC on workspace administration, ABAC for "external sharing only allowed for users with the EXTERNAL_OK attribute". The model is a vocabulary; production policy is the union.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ SLIDE 05 — RBAC ═══ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">04</span><h2>RBAC — Roles, Hierarchies, Separation of Duties</h2></div>
+
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber">
+        <h3 class="a">The four NIST RBAC levels (ANSI INCITS 359-2004)</h3>
+        <ol style="padding-left:1.2em;">
+          <li><span class="g">Flat RBAC</span> — users → roles → permissions.</li>
+          <li><span class="g">Hierarchical</span> — roles inherit from each other (<code>admin</code> ⊃ <code>editor</code> ⊃ <code>viewer</code>).</li>
+          <li><span class="g">Constrained</span> — adds <em>separation of duties</em>: a user can hold either <code>approver</code> or <code>requester</code>, never both.</li>
+          <li><span class="g">Symmetric</span> — adds permission review (queries like "who can do X?").</li>
+        </ol>
+      </div>
+      <div class="card green" style="margin-top:0.4em;">
+        <h3 class="g">Where RBAC shines</h3>
+        <ul>
+          <li>Org charts that map naturally to roles ("all customer-success reps see the customer-care console").</li>
+          <li>Compliance regimes that audit who has which role.</li>
+          <li>Coarse-grained tooling — Linux <code>sudoers</code>, Kubernetes <code>Role</code>/<code>ClusterRole</code>, AWS IAM groups.</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card red">
+        <h3 class="r">Where RBAC breaks down — "role explosion"</h3>
+        <ul>
+          <li>You start with <code>admin</code>, <code>editor</code>, <code>viewer</code>. A customer asks "viewer that can also export". You add <code>viewer-with-export</code>.</li>
+          <li>Another asks "admin without billing access". <code>admin-no-billing</code>.</li>
+          <li>Six months later you have 200 roles and 14 are misnamed near-duplicates.</li>
+          <li>The cure: parameterise. That's ABAC.</li>
+        </ul>
+      </div>
+      <div class="card purple" style="margin-top:0.4em;">
+        <h3 class="p">RBAC in code (Kubernetes)</h3>
+<pre><code>kind: Role
+metadata: { name: pod-reader, namespace: dev }
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get","list","watch"]
+
+---
+kind: RoleBinding
+metadata: { name: alice-pod-reader, namespace: dev }
+subjects: [{ kind: User, name: alice }]
+roleRef: { kind: Role, name: pod-reader }</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ SLIDE 06 — ABAC ═══ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">05</span><h2>ABAC — Attributes &amp; Predicates</h2></div>
+  <p>Instead of pre-clustering users into roles, ABAC writes a <em>predicate</em> over the request and the world. A role becomes a special case ("subject.role == admin"), but you can also express things RBAC can't: time-of-day, IP range, classification level, ownership.</p>
+
+  <div class="cols cols-2" style="margin-top:0.4em;">
+    <div>
+      <div class="card amber">
+        <h3 class="a">XACML — the granddaddy</h3>
+        <ul>
+          <li>OASIS standard, 2003 (XACML 1.0) → 3.0 (2013).</li>
+          <li>XML policy language with PEP/PDP/PIP/PAP architecture.</li>
+          <li>Policy combinators (deny-overrides, permit-overrides, first-applicable).</li>
+          <li>Verbose, hard to read; widely-deployed in government and finance through the 2000s.</li>
+          <li>Largely superseded in greenfield by OPA/Rego and Cedar — but the <em>concepts</em> survived.</li>
+        </ul>
+      </div>
+      <div class="card green" style="margin-top:0.4em;">
+        <h3 class="g">A modern ABAC policy (Cedar)</h3>
+<pre><code>permit (
+  principal,
+  action == Action::"document.publish",
+  resource is Document
+) when {
+  resource.owner == principal
+  &amp;&amp; resource.classification == "public"
+  &amp;&amp; context.auth_strength == "mfa"
+};</code></pre>
+        <p style="margin-top:.25em;">No roles in sight; the rule reads like the natural-language policy.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3 class="p">When ABAC wins</h3>
+        <ul>
+          <li>Decisions depend on <em>resource</em> attributes — owner, sensitivity, project, customer.</li>
+          <li>Decisions depend on <em>context</em> — time, location, auth strength, device posture.</li>
+          <li>Multi-tenant SaaS where each customer has different rules but the same engine.</li>
+          <li>Compliance contexts (HIPAA "minimum necessary", FedRAMP) that require explicit data-classification logic.</li>
+        </ul>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">Where it bites</h3>
+        <ul>
+          <li>"Who can publish this document?" — ABAC requires evaluating the rule against every (subject, resource) pair, which doesn't scale to a UI listing.</li>
+          <li>Solution: ABAC for <em>enforcement</em> + a separate index for <em>list / search</em>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ SLIDE 07 — REBAC / ZANZIBAR ═══ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">06</span><h2>ReBAC &amp; Google Zanzibar</h2></div>
+  <p>Google's 2019 paper "Zanzibar: Google's Consistent, Global Authorization System" described the system that powers Drive, Calendar, YouTube, Cloud, and most of Google's product surface. It's a <em>relationship</em>-based model implemented as a globally-consistent tuple store.</p>
+
+  <div class="cols cols-2" style="margin-top:0.4em;">
+    <div>
+      <div class="card amber">
+        <h3 class="a">The core data structure — relation tuples</h3>
+<pre><code># object # relation @ user
+doc:report1#owner@user:alice
+doc:report1#viewer@user:bob
+doc:report1#viewer@group:engineering#member
+group:engineering#member@user:carol
+folder:q3#parent@doc:report1
+folder:q3#viewer@user:dan</code></pre>
+        <p style="margin-top:.25em;">Every authorisation fact is a small tuple. The graph is the policy.</p>
+      </div>
+      <div class="card green" style="margin-top:0.4em;">
+        <h3 class="g">A namespace schema</h3>
+<pre><code>type doc {
+  relation owner:   user
+  relation viewer:  user | group#member | doc#owner
+  permission view = viewer + owner
+                  + parent.viewer    // inherit from folder
+}
+type folder {
+  relation viewer:  user | group#member
+}
+type group {
+  relation member:  user
+}</code></pre>
+      </div>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3 class="p">Why ReBAC fits modern apps</h3>
+        <ul>
+          <li>Every collaboration product is fundamentally a graph (folders contain documents; teams contain people; orgs contain teams).</li>
+          <li>Sharing semantics are <em>natural</em>: <em>"viewer of folder X = viewer of every document in X"</em> falls out of the schema.</li>
+          <li>ListUserPermissions ("what can Alice see?") and ListResourceAccessors ("who can see this?") are first-class queries.</li>
+          <li>External Zanzibar-clones — <span class="g">OpenFGA</span> (Auth0), <span class="g">SpiceDB</span> (AuthZed), <span class="g">Warrant</span>, <span class="g">Permify</span>, <span class="g">Topaz</span> — are open-source/SaaS.</li>
+        </ul>
+      </div>
+      <div class="card blue" style="margin-top:0.4em;">
+        <h3 class="b">The hard parts (Zanzibar's contributions)</h3>
+        <ul>
+          <li><span class="a">Consistency</span> — Zanzibar uses zookies (causally-consistent tokens) so a write reflects in subsequent reads.</li>
+          <li><span class="a">Global scale</span> — billions of writes/sec across data centres.</li>
+          <li><span class="a">Cache coherence</span> across the graph traversal.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ SLIDE 08 — POLICY-AS-CODE ═══ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">07</span><h2>Policy-as-Code — The Class of Tools</h2></div>
+  <p>Policy-as-Code (PaC) means: the rules live in version-controlled files, are reviewed in PRs, are tested with unit tests, and are deployed by a pipeline. The actual policy language varies — Rego, Cedar, internal DSLs — but the engineering practice is the same.</p>
+
+  <table>
+    <thead><tr><th>Tool</th><th>Language</th><th>Sweet spot</th><th>Hosted by</th></tr></thead>
+    <tbody>
+      <tr><td><span class="a">OPA</span> (Open Policy Agent)</td><td>Rego (datalog-ish)</td><td>General-purpose; outside-of-app PDP for k8s, Terraform, microservices</td><td>CNCF (graduated); Styra</td></tr>
+      <tr><td><span class="a">Cedar</span></td><td>Cedar (purpose-built)</td><td>App-level RBAC + ABAC; safer / more analysable than Rego</td><td>AWS (open source); AVP service</td></tr>
+      <tr><td><span class="a">OpenFGA</span></td><td>FGA-DSL + tuples (Zanzibar-like)</td><td>ReBAC at app scale; collaboration apps</td><td>Auth0/Okta, CNCF sandbox</td></tr>
+      <tr><td><span class="a">SpiceDB</span></td><td>Schema + relationships (Zanzibar-like)</td><td>Same niche as OpenFGA; commercial AuthZed managed cloud</td><td>AuthZed</td></tr>
+      <tr><td><span class="a">Casbin</span></td><td>Multi-model (RBAC, ABAC, ReBAC)</td><td>Embedded in many languages; small apps that prefer a library</td><td>open source</td></tr>
+      <tr><td><span class="a">Permify / Topaz / Warrant</span></td><td>Variants on the above</td><td>Each scratches a slightly different operational itch</td><td>open / commercial</td></tr>
+      <tr><td><span class="a">XACML / WSO2 IS</span></td><td>XACML 3.0</td><td>Legacy enterprise; government / regulated environments</td><td>OASIS standard, WSO2</td></tr>
+    </tbody>
+  </table>
+
+  <div class="card amber" style="margin-top:0.4em;">
+    <h3 class="a">Picking on engine vs language</h3>
+    <p>Two questions to ask. <span class="g">(1)</span> What's your dominant model — RBAC, ABAC, ReBAC? <span class="g">(2)</span> Where will the engine run — embedded, sidecar, central service? Most rejection of "the wrong tool" comes from forcing a Zanzibar-style graph onto a Rego rule, or vice versa.</p>
+  </div>
+</section>
+
+
+<!-- ═══ SLIDE 09 — OPA / REGO ═══ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">08</span><h2>OPA &amp; Rego — The General-Purpose Engine</h2></div>
+
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber">
+        <h3 class="a">A Rego policy</h3>
+<pre><code>package authz
+
+default allow = false
+
+allow if {
+  input.action == "document.publish"
+  input.subject.role == "editor"
+  input.resource.owner == input.subject.id
+  input.resource.classification == "public"
+  input.context.auth_strength == "mfa"
+}
+
+allow if {
+  input.subject.role == "admin"
+  not deny
+}
+
+deny if {
+  input.context.ip in data.blocked_cidrs
+}</code></pre>
+      </div>
+      <div class="card green" style="margin-top:0.4em;">
+        <h3 class="g">How OPA is deployed</h3>
+        <ul>
+          <li><span class="a">Sidecar</span> next to the app — Unix socket / localhost HTTP. The most common pattern.</li>
+          <li><span class="a">In-process</span> via the OPA WebAssembly bundle. Lower latency; harder to update.</li>
+          <li><span class="a">Centralised service</span> — easy to manage, single point of failure.</li>
+          <li>Policies pulled from a bundle server (S3 / GitHub release / Styra DAS).</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3 class="p">Where OPA shines</h3>
+        <ul>
+          <li><span class="g">Kubernetes admission control</span> (Gatekeeper).</li>
+          <li><span class="g">Terraform / IaC validation</span> (conftest).</li>
+          <li><span class="g">Service-mesh authz</span> (Envoy ext_authz).</li>
+          <li><span class="g">CI/CD policy</span> ("no PR can merge with a rule violation").</li>
+          <li><span class="g">Cross-language app authz</span> when you have polyglot services.</li>
+        </ul>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">Common pain</h3>
+        <ul>
+          <li>Rego's evaluation rules surprise people — "default" + "rule with the same name" can both fire and produce confusing results.</li>
+          <li>Performance degrades with poorly-written rules (cartesian iteration over data sets).</li>
+          <li>No native graph traversal → ReBAC in OPA gets ugly.</li>
+          <li>Test coverage requires explicit fixtures; many shops don't.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ SLIDE 10 — CEDAR ═══ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">09</span><h2>Cedar — The App-Level Specialist</h2></div>
+  <p>AWS published Cedar in 2023 (Apache 2.0 + the AWS-hosted Verified Permissions service). Designed from a formal-methods background: deliberately small, deliberately analysable, deliberately app-level.</p>
+
+  <div class="cols cols-2" style="margin-top:0.4em;">
+    <div>
+      <div class="card amber">
+        <h3 class="a">A Cedar policy</h3>
+<pre><code>permit (
+  principal in Group::"engineering",
+  action in [Action::"doc.read", Action::"doc.comment"],
+  resource is Document
+) when {
+  resource.classification != "secret"
+  || principal has clearance &amp;&amp; principal.clearance &gt;= 3
+};
+
+forbid (
+  principal,
+  action == Action::"doc.delete",
+  resource is Document
+) unless {
+  principal == resource.owner
+};</code></pre>
+        <p style="margin-top:.25em;">RBAC (<code>principal in Group::"engineering"</code>) and ABAC (<code>resource.classification</code>) and ReBAC-lite (<code>principal == resource.owner</code>) all live together.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card green">
+        <h3 class="g">What Cedar does that Rego can't</h3>
+        <ul>
+          <li><span class="a">Schema-validated</span> — every policy is checked against an entity schema; misspelled attributes fail at parse time.</li>
+          <li><span class="a">Analysable</span> — formal verification tools answer questions like "does this policy ever permit X?". Same engine that powers AWS IAM Access Analyzer.</li>
+          <li><span class="a">No undefined behaviour</span> — explicit semantics for every operation.</li>
+          <li><span class="a">Permit / forbid combinators</span> with explicit precedence (forbid wins).</li>
+        </ul>
+      </div>
+      <div class="card purple" style="margin-top:0.4em;">
+        <h3 class="p">Where Cedar fits</h3>
+        <ul>
+          <li>App authorisation — "may this user perform this action on this object?".</li>
+          <li>Multi-tenant SaaS with similar shape across tenants.</li>
+          <li>Anywhere you'd write XACML in 2010 but want a modern syntax in 2026.</li>
+        </ul>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">Where it doesn't</h3>
+        <p>Infrastructure / k8s / IaC validation. That's still Rego/OPA territory.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ SLIDE 11 — OPENFGA / SPICEDB ═══ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">10</span><h2>OpenFGA &amp; SpiceDB — Zanzibar-Class Engines</h2></div>
+
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber">
+        <h3 class="a">OpenFGA — schema + tuples</h3>
+<pre><code>// schema
+model
+  schema 1.1
+type user
+type group
+  relations
+    define member: [user]
+type document
+  relations
+    define owner:  [user]
+    define editor: [user, group#member]
+    define viewer: [user, group#member]
+    define can_edit:  editor or owner
+    define can_view:  can_edit or viewer
+
+// runtime tuples
+write document:report1 owner    user:alice
+write document:report1 viewer   group:engineering#member
+write group:engineering member  user:bob
+
+// query
+check document:report1 can_view user:bob   → allow</code></pre>
+      </div>
+      <div class="card green" style="margin-top:0.4em;">
+        <h3 class="g">Capabilities both share</h3>
+        <ul>
+          <li>Sub-millisecond <code>check</code> at the 99th percentile (with caches).</li>
+          <li><code>list_objects</code> — all docs Alice can view (for UI listings).</li>
+          <li><code>list_users</code> — everyone who can view this doc.</li>
+          <li>Conditional relationships — "<em>viewer if today.weekday() &lt; 6</em>".</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3 class="p">SpiceDB — opinions</h3>
+        <ul>
+          <li>Same Zanzibar lineage; commercial backing from <span class="a">AuthZed</span>.</li>
+          <li>Stronger story on consistency (zookies / "fully consistent" reads).</li>
+          <li>Schema language is more expressive (caveats, computed sets).</li>
+          <li>Both gRPC + HTTP APIs.</li>
+        </ul>
+      </div>
+      <div class="card blue" style="margin-top:0.4em;">
+        <h3 class="b">When this is the right tool</h3>
+        <ul>
+          <li>You're building a collaboration app — docs, folders, comments, mentions, notifications.</li>
+          <li>You have hierarchical resources where sharing inherits down (or up).</li>
+          <li>Your UI needs <em>"things shared with me"</em> queries; computing this from RBAC/ABAC is painful.</li>
+          <li>You expect &gt; 10⁶ relationship tuples and want sub-millisecond evaluation.</li>
+        </ul>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">Operational note</h3>
+        <p>Both are real <em>databases</em>. Treat them like one — backups, monitoring, schema migrations, capacity planning.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ SLIDE 12 — DEPLOYMENT TOPOLOGIES ═══ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">11</span><h2>Deployment Topologies — In-App, Sidecar, External</h2></div>
+
+  <div class="cols cols-3">
+    <div class="card amber">
+      <h3 class="a">In-app library</h3>
+      <p><em>"Just import the SDK and call <code>can()</code>."</em></p>
+      <ul>
+        <li>OPA WASM bundle, Casbin, embedded Cedar.</li>
+        <li><span class="g">Lowest latency</span> — function call.</li>
+        <li>Policy updates require redeploy (or a runtime bundle reload).</li>
+        <li>Drift between services if each updates at its own pace.</li>
+      </ul>
+      <p style="margin-top:.25em;">Best for: monolithic apps, latency-sensitive paths.</p>
+    </div>
+    <div class="card green">
+      <h3 class="p">Sidecar (PEP next to app, PDP next to PEP)</h3>
+      <p><em>"localhost:8181 says yes."</em></p>
+      <ul>
+        <li>OPA sidecar; SpiceDB / OpenFGA local proxy.</li>
+        <li>Policy bundles pulled centrally; loaded by every sidecar.</li>
+        <li><span class="g">Sub-ms latency</span> over loopback.</li>
+        <li>Standard pattern in service-mesh architectures.</li>
+      </ul>
+      <p style="margin-top:.25em;">Best for: microservices, k8s, polyglot stacks.</p>
+    </div>
+    <div class="card purple">
+      <h3 class="p">External service (PDP as its own SaaS)</h3>
+      <p><em>"call the AuthZ team's API."</em></p>
+      <ul>
+        <li>AWS Verified Permissions; Auth0 FGA Cloud; AuthZed Cloud; Styra DAS.</li>
+        <li>Centralised audit, single source of truth for policy.</li>
+        <li><span class="g">Higher latency</span> — 5–30 ms per check.</li>
+        <li>Network failure mode = your app fails closed (or opens — be deliberate).</li>
+      </ul>
+      <p style="margin-top:.25em;">Best for: organisations with strong central security teams; small apps that want SaaS authZ.</p>
+    </div>
+  </div>
+
+  <div class="card amber" style="margin-top:0.5em;">
+    <h3 class="a">A common production pattern</h3>
+    <p>RBAC checks (course-grained) inside the app for low-latency hot path. ReBAC checks against a sidecar/external PDP for object-level decisions. ABAC overlay for "additional constraints" (geo, time, classification). The decisions agree because the schemas are unified, but each runs at the right cost.</p>
+  </div>
+</section>
+
+
+<!-- ═══ SLIDE 13 — CACHING / PERFORMANCE ═══ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">12</span><h2>Performance — Decisions Per Second, Caching, Indexes</h2></div>
+
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber">
+        <h3 class="a">Where the time goes</h3>
+        <ul>
+          <li>Network round-trip (PEP → PDP)</li>
+          <li>Policy evaluation</li>
+          <li>Attribute fetch (PIP → DB / IdP / UserInfo)</li>
+          <li>Graph traversal (ReBAC)</li>
+        </ul>
+        <p style="margin-top:.25em;">Most production AuthZ latency is <em>not</em> the policy engine — it's the data lookups.</p>
+      </div>
+      <div class="card green" style="margin-top:0.4em;">
+        <h3 class="g">Caching, sensibly</h3>
+        <ul>
+          <li>Cache the <em>request inputs</em> not the decision when policy is changing fast.</li>
+          <li>Cache the decision when the inputs are stable for the request lifetime.</li>
+          <li>Use short TTLs (≤ 60 s) with explicit invalidation events when group memberships change.</li>
+          <li>Negative caching matters — denials are repeated.</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3 class="p">Hot indexes for ReBAC</h3>
+        <ul>
+          <li>Zanzibar maintains <em>materialised views</em> ("all users with view on this object") computed asynchronously.</li>
+          <li>This makes <code>list_users</code> &amp; <code>list_objects</code> sub-ms.</li>
+          <li>Trade-off: writes are slower (graph re-computation); reads are O(log n).</li>
+        </ul>
+      </div>
+      <div class="card blue" style="margin-top:0.4em;">
+        <h3 class="b">Bulk authorisation</h3>
+        <p>If your UI shows 50 documents and asks "which can I edit?", don't make 50 round-trips. Every modern engine has a <code>batchCheck</code> / <code>checkBulk</code> primitive — use it.</p>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">Anti-pattern</h3>
+        <p>Calling the PDP from inside a database query / N+1. Authz must run before / after the query, not <em>per row</em>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ SLIDE 14 — AUDIT / EXPLAINABILITY ═══ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">13</span><h2>Audit &amp; Explainability — What Auditors Actually Want</h2></div>
+
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber">
+        <h3 class="a">An auditable decision log</h3>
+        <p>Every auth decision should be loggable as a structured record. Sample fields:</p>
+<pre><code>{ "ts": "2026-05-06T09:00:01.234Z",
+  "trace_id": "abc…",
+  "subject": { "sub":"alice", "iss":"https://idp/" },
+  "action": "document.publish",
+  "resource": { "type":"document", "id":"d_42" },
+  "decision": "allow",
+  "matched_rule": "allow-editor-on-own-public-doc",
+  "policy_version": "git:5f3a91c",
+  "engine": "cedar-3.2.1",
+  "latency_ms": 1.4 }</code></pre>
+      </div>
+      <div class="card green" style="margin-top:0.4em;">
+        <h3 class="g">Three questions auditors ask</h3>
+        <ol style="padding-left:1.2em;">
+          <li><em>Show me every action user X performed in Q3.</em></li>
+          <li><em>Show me everyone who could have viewed customer Y's data on date Z.</em></li>
+          <li><em>Show me what policy was in effect for every decision.</em></li>
+        </ol>
+        <p style="margin-top:.25em;">If your decision log + policy versioning can answer these, you're SOC 2 / HIPAA / FedRAMP-credible.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3 class="p">Explainability inside the engine</h3>
+        <ul>
+          <li>OPA: <code>opa eval</code> with <code>--explain=full</code> dumps the trace; usable in tests.</li>
+          <li>Cedar: response includes "<em>permit</em> from policy <em>policyId</em>" identifiers.</li>
+          <li>OpenFGA: <code>check</code> can return the path through the relationship graph.</li>
+          <li>Translate technical traces into human-readable strings for support / customer admins.</li>
+        </ul>
+      </div>
+      <div class="card blue" style="margin-top:0.4em;">
+        <h3 class="b">Test policies like code</h3>
+        <ul>
+          <li>Every PR to a policy file requires unit tests.</li>
+          <li>Tests cover both allow and deny paths.</li>
+          <li>Tests assert on the matched rule — not just the boolean — so a refactor that "happens to allow" still flags.</li>
+          <li>OPA: <code>opa test</code>. Cedar: built-in test harness. OpenFGA: <code>store-test</code>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ SLIDE 15 — TIE TO IDENTITY ═══ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">14</span><h2>Tying AuthZ to AuthN &amp; Identity</h2></div>
+  <p>An authorisation engine is only as good as the facts it gets about the subject. Those facts come from the rest of the Identity &amp; Access stack.</p>
+
+  <table>
+    <thead><tr><th>From the IdP / token</th><th>Becomes a PDP input</th></tr></thead>
+    <tbody>
+      <tr><td>OIDC <code>sub</code></td><td><code>subject.id</code></td></tr>
+      <tr><td>OIDC <code>aud</code></td><td>resource scope check (ensure this token is for me)</td></tr>
+      <tr><td>OIDC <code>scope</code></td><td>action allow-list pre-filter</td></tr>
+      <tr><td>OIDC <code>acr</code> / SAML <code>AuthnContextClassRef</code></td><td><code>context.auth_strength</code> ("mfa" / "password")</td></tr>
+      <tr><td>OIDC <code>amr</code></td><td><code>context.auth_methods</code> (["pwd","webauthn"])</td></tr>
+      <tr><td>OIDC <code>auth_time</code></td><td><code>context.auth_age_seconds</code></td></tr>
+      <tr><td>SAML <code>AttributeStatement.groups</code> / SCIM-synced groups</td><td><code>subject.roles</code> / membership tuples</td></tr>
+      <tr><td>Custom claims (department, region, clearance)</td><td><code>subject.&lt;attribute&gt;</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="cols cols-2" style="margin-top:0.4em;">
+    <div class="card amber">
+      <h3 class="a">A common mistake</h3>
+      <p>Re-fetching the user's roles from the database on every PDP call when they're already on the access token. Trust the IdP that issued the token; if you don't, <em>that</em> is your problem to fix.</p>
+    </div>
+    <div class="card green">
+      <h3 class="g">When to step up</h3>
+      <p>If a policy demands <code>context.auth_strength == "mfa"</code> and the token only attests <code>pwd</code>, the PEP should issue a step-up — not flatly deny. With OIDC: redirect to <code>/authorize?prompt=login&amp;acr_values=mfa</code> and try again.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ SLIDE 16 — CHOOSING ═══ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">15</span><h2>Choosing a Model — Decision Matrix</h2></div>
+
+  <table>
+    <thead><tr><th>If your authorisation question is...</th><th>Best-fit model</th><th>Likely engine</th></tr></thead>
+    <tbody>
+      <tr><td>"Does this user have a role with this permission?"</td><td>RBAC</td><td>In-app, or any engine in RBAC mode (Cedar, OPA)</td></tr>
+      <tr><td>"Does this user have <em>this attribute combo</em> at <em>this time</em>?"</td><td>ABAC</td><td>Cedar (analysable) or OPA/Rego (general)</td></tr>
+      <tr><td>"Has someone shared this object with this user, possibly transitively?"</td><td>ReBAC</td><td>OpenFGA / SpiceDB / Permify / AuthZed</td></tr>
+      <tr><td>"All of the above"</td><td>Hybrid</td><td>Engine that supports both — Cedar + Zanzibar-class side car, or AWS Verified Permissions + Cognito</td></tr>
+      <tr><td>"Is this Kubernetes manifest allowed?"</td><td>Policy-as-Code on infra</td><td>OPA / Gatekeeper</td></tr>
+      <tr><td>"Is this Terraform plan allowed?"</td><td>Policy-as-Code on IaC</td><td>OPA / conftest, HashiCorp Sentinel</td></tr>
+      <tr><td>"Can this microservice talk to that one?"</td><td>Network + workload identity (mTLS / SPIFFE)</td><td>Service mesh (Istio, Linkerd, Cilium)</td></tr>
+      <tr><td>"Can this database column be read by this user?"</td><td>Row/column-level security in DB + central PDP</td><td>Postgres RLS, Snowflake row access policies, plus PDP for the rule body</td></tr>
+    </tbody>
+  </table>
+
+  <div class="card amber" style="margin-top:0.4em;">
+    <h3 class="a">Don't pick the model first</h3>
+    <p>Pick the <em>questions</em> first. Write down the ten authorisation questions the product needs to answer. The model that makes those questions short and natural is the right one. The model that requires more JOINs / more roles / more rules than questions is wrong.</p>
+  </div>
+</section>
+
+
+<!-- ═══ SLIDE 17 — MIGRATION ═══ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">16</span><h2>Migration Patterns</h2></div>
+
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber">
+        <h3 class="a">Hand-rolled if/else → Policy engine</h3>
+        <ol style="padding-left:1.2em;">
+          <li>Inventory every <code>if (user.role == ...)</code> in the codebase. Tag each with the question it answers.</li>
+          <li>Pick an engine based on the question shape (slide 16).</li>
+          <li>Implement the new policy in shadow mode — every check runs both old and new code paths; log the diff. Don't change behaviour.</li>
+          <li>Burn down the diff. When zero for ≥ 1 week, flip the engine to authoritative.</li>
+          <li>Delete the if/else.</li>
+        </ol>
+      </div>
+      <div class="card green" style="margin-top:0.4em;">
+        <h3 class="g">RBAC → ReBAC</h3>
+        <ul>
+          <li>Map roles to relationships: <code>user X has admin role on workspace W</code> = <code>workspace:W#admin@user:X</code>.</li>
+          <li>Backfill existing role assignments as relationship tuples.</li>
+          <li>Add object-level relationships gradually (folders, documents) as features want them.</li>
+          <li>Keep the role tuple too; it lets you keep RBAC checks for hot paths.</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card purple">
+        <h3 class="p">XACML → Cedar / OPA</h3>
+        <ul>
+          <li>XACML's policy combinators map cleanly onto Cedar's <code>permit</code>/<code>forbid</code> semantics.</li>
+          <li>Most XACML rules are ABAC; keep the structure, port the syntax.</li>
+          <li>Test in shadow against the old XACML PDP before cutover.</li>
+        </ul>
+      </div>
+      <div class="card blue" style="margin-top:0.4em;">
+        <h3 class="b">Lessons from real migrations</h3>
+        <ul>
+          <li>Plan for <em>twice</em> as many edge cases as the old code admits to. Hand-rolled authz accretes them.</li>
+          <li>Don't re-design the model and the engine at once. Lift-and-shift first; redesign once stable.</li>
+          <li>Audit log diff is your safety net — don't skip the shadow phase.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ SLIDE 18 — REFERENCE ARCHITECTURES ═══ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">17</span><h2>Reference Architectures by Domain</h2></div>
+
+  <table>
+    <thead><tr><th>Domain</th><th>Stack</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="a">Collaboration SaaS</span> (docs, kanban, chat)</td>
+        <td>OIDC at the edge · OpenFGA / SpiceDB for object-level ReBAC · embedded RBAC for admin actions · ABAC overlay for data-residency rules.</td>
+      </tr>
+      <tr>
+        <td><span class="a">B2B SaaS, multi-tenant</span></td>
+        <td>OIDC + SCIM-synced groups · Cedar or OPA per request · per-tenant policy bundles via Styra/AVP · row-level security in DB for defence-in-depth.</td>
+      </tr>
+      <tr>
+        <td><span class="a">Kubernetes platform</span></td>
+        <td>Workload OIDC for service identity · OPA/Gatekeeper for admission · Kubernetes RBAC for role-binding · SPIFFE/SPIRE for service-to-service mTLS.</td>
+      </tr>
+      <tr>
+        <td><span class="a">FinTech / Open Banking</span></td>
+        <td>FAPI 2.0 OIDC at the edge · Cedar-style ABAC for transaction policies · separate engine for fraud rules · audit log streamed to regulator.</td>
+      </tr>
+      <tr>
+        <td><span class="a">Healthcare / FHIR</span></td>
+        <td>SMART-on-FHIR scopes (OAuth) · ABAC on patient-clinician relationships · ReBAC for care-team graphs · break-glass emergency access pattern.</td>
+      </tr>
+      <tr>
+        <td><span class="a">Internal corporate IT</span></td>
+        <td>Workforce IdP (Entra/Okta) issues OIDC + SAML · SCIM provisions to apps · per-app RBAC · CAEP for session revocation.</td>
+      </tr>
+      <tr>
+        <td><span class="a">Public cloud account</span></td>
+        <td>AWS IAM (resource-scoped) · AWS Verified Permissions / Cedar for app-level · OPA/Conftest for IaC.</td>
+      </tr>
+      <tr>
+        <td><span class="a">Government / regulated</span></td>
+        <td>SAML / OIDC SSO · ABAC with classification labels · audit + dual control / SoD enforced at PDP · MAC-style label propagation in DB.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ═══ SLIDE 19 — GOTCHAS ═══ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">18</span><h2>Production Gotchas</h2></div>
+
+  <div class="cols cols-2">
+    <div>
+      <div class="card red">
+        <h3 class="r">"Default allow"</h3>
+        <p>Easy to ship, expensive to fix. Always default-deny; require an explicit <code>permit</code>.</p>
+      </div>
+      <div class="card red" style="margin-top:0.3em;">
+        <h3 class="r">Stale group sync</h3>
+        <p>SCIM provisioned the user out at 17:00. PDP cached "alice ∈ admins" for 60 min. Use change-events to invalidate, not just TTL.</p>
+      </div>
+      <div class="card red" style="margin-top:0.3em;">
+        <h3 class="r">Authorising on the access token's <code>scope</code> alone</h3>
+        <p>Scopes are coarse — <em>"can call this API"</em>, not <em>"can call this method on this object"</em>. The PDP must check the resource too.</p>
+      </div>
+      <div class="card red" style="margin-top:0.3em;">
+        <h3 class="r">Mixing AuthN and AuthZ in the same code path</h3>
+        <p>If you look at a JWT and decide both "is the token valid?" and "is this user allowed to call this method?" in one function, you've coupled two concerns that change at very different rates.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card red">
+        <h3 class="r">"Admin" as a magic role</h3>
+        <p>An <code>admin</code> role that bypasses every rule is the most common reason customers find their data was accessed by a support engineer they didn't expect. Subject every privileged action to the same logging + step-up MFA as regular users.</p>
+      </div>
+      <div class="card red" style="margin-top:0.3em;">
+        <h3 class="r">Changing the model "just for one feature"</h3>
+        <p>That feature now bypasses every authz check. Add the new feature to the existing engine — even if it's awkward — until the engine genuinely doesn't fit and you re-architect.</p>
+      </div>
+      <div class="card red" style="margin-top:0.3em;">
+        <h3 class="r">Trusting the front-end</h3>
+        <p>UI hides the "Delete" button if the user can't delete. Backend doesn't check. User opens devtools and POSTs <code>DELETE /api/x</code>. Authorise <em>at the API</em>, not just in the UI.</p>
+      </div>
+      <div class="card red" style="margin-top:0.3em;">
+        <h3 class="r">Logging what was <em>requested</em>, not what was <em>decided</em></h3>
+        <p>"Alice tried to view doc X" is not enough. Log the policy version, matched rule, decision and obligations. Half of post-incident analysis is this log.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ SLIDE 20 — SUMMARY ═══ -->
+<section data-background-color="#0a0a0f">
+  <div class="slide-hdr"><span class="tag">19</span><h2>Summary &amp; References</h2></div>
+
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber">
+        <h3 class="a">What we covered</h3>
+        <ul>
+          <li>PEP / PDP / PAP / PIP architecture</li>
+          <li>The DAC → MAC → RBAC → ABAC → ReBAC arc</li>
+          <li>RBAC in detail and "role explosion" as the symptom that pushes you onward</li>
+          <li>ABAC — XACML lineage, Cedar in 2026</li>
+          <li>ReBAC — Google Zanzibar, OpenFGA, SpiceDB</li>
+          <li>Policy-as-Code engines compared</li>
+          <li>OPA/Rego, Cedar, OpenFGA/SpiceDB in concrete code</li>
+          <li>Deployment topologies — in-app, sidecar, external</li>
+          <li>Performance, caching, bulk authorisation</li>
+          <li>Audit, explainability, testing policies like code</li>
+          <li>Tying AuthZ to AuthN/identity (the OIDC/SAML connection)</li>
+          <li>Choosing a model; migration patterns; reference architectures</li>
+          <li>Production gotchas</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card green">
+        <h3 class="g">Three take-aways</h3>
+        <ol style="padding-left:1.2em;">
+          <li><span class="a">Pick the questions, then the model.</span> If your authz questions are about <em>relationships</em>, force-fitting them into roles is how you get role-explosion.</li>
+          <li><span class="a">Authorisation is data + code.</span> The data (groups, ownership, relationships) lives in the IdP / app / Zanzibar store; the code (policy) lives in git. Separate them.</li>
+          <li><span class="a">Default deny, log everything, version policy.</span> Without these three, no engine on earth saves you.</li>
+        </ol>
+      </div>
+      <div class="card blue" style="margin-top:0.4em;">
+        <h3 class="b">Companion decks</h3>
+        <p><span class="a">OAuth Primer / Part 1 / Part 2</span> &middot; <span class="a">Introduction / Advanced OpenID Connect</span> &middot; <span class="a">SAML 2.0 &amp; SCIM</span> &middot; <span class="a">Authentication Methods</span>.</p>
+      </div>
+      <div class="card purple" style="margin-top:0.4em;">
+        <h3 class="p">References</h3>
+        <p>Ferraiolo &amp; Kuhn, <em>Role-Based Access Control</em> (1992) &middot; ANSI INCITS 359-2004 RBAC &middot; OASIS XACML 3.0 &middot; Pang et al., <em>Zanzibar: Google's Consistent, Global Authorization System</em> (USENIX 2019) &middot; OPA — openpolicyagent.org &middot; Cedar — cedarpolicy.com &middot; OpenFGA — openfga.dev &middot; SpiceDB / AuthZed — authzed.com &middot; AWS Verified Permissions &middot; NIST SP 800-162 (ABAC) &middot; SP 800-205 (ABAC for Cloud)</p>
+      </div>
+      <div class="card red" style="margin-top:0.4em;">
+        <h3 class="r">One-line takeaway</h3>
+        <p>Authentication tells you who. Tokens tell apps that. <em>Authorisation</em> is the actual rules — and rules belong in version-controlled code, not scattered through the application.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+</div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/highlight.min.js"></script>
+<script>
+Reveal.initialize({
+  hash: true, slideNumber: 'c/t', transition: 'fade', transitionSpeed: 'fast',
+  controls: true, progress: true, center: false, width: 1100, height: 900, margin: 0.01,
+  plugins: [RevealHighlight], highlight: { theme: 'monokai' }
+});
+</script>
+<script>
+(function(){
+  var h = Reveal.getConfig().height || 900;
+  var m = Reveal.getConfig().margin || 0.02;
+  var maxH = Math.floor(h * (1 - 2 * m)) + 'px';
+  function fixSlides(){
+    document.querySelectorAll('.reveal .slides>section,.reveal .slides>section>section').forEach(function(s){
+      s.style.display = 'block'; s.style.maxHeight = maxH;
+    });
+  }
+  Reveal.on('ready', fixSlides);
+  Reveal.on('slidechanged', fixSlides);
+})();
+</script>
+</body>
+</html>
