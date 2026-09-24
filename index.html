@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css">
 <style>
-  :root { --amber:#f5a623; --green:#4ecb8d; --purple:#a78bfa; --blue:#60a5fa; --red:#f87171;
-          --bg:#0a0a0f; --bg2:#10101a; --bg3:#181824; --border:#2a2a3a; --text:#e8e8f0; --muted:#8888a8; }
+  :root { --amber:#cfad64; --green:#8fc9a1; --purple:#b2a3d0; --blue:#93b6cd; --red:#da7d6b;
+          --bg:#0f231c; --bg2:#132a22; --bg3:#173028; --border:#29483d; --text:#ede8d8; --muted:#829b90; }
   .reveal-viewport { background: var(--bg); }
   .reveal .slides section { background: transparent; }
   .reveal { font-family: 'DM Sans', sans-serif; color: var(--text); }
@@ -24,7 +24,7 @@
   .reveal code { font-family: 'JetBrains Mono', monospace; font-size: .72em; }
   .reveal pre  { box-shadow: none; background: var(--bg3); border: 1px solid var(--border);
                  border-radius: 6px; padding: .3em .5em; margin: .25em 0; }
-  .reveal pre code { font-size: .52em; line-height: 1.35; background: transparent; color: #cdd6f4; }
+  .reveal pre code { font-size: .52em; line-height: 1.35; background: transparent; color: #d9dcce; }
   .slide-hdr { display:flex; align-items:center; gap:.4em; border-bottom:1px solid var(--border);
                padding-bottom:.2em; margin-bottom:.3em; }
   .slide-hdr .tag { font-family:'JetBrains Mono',monospace; font-size:.42em; font-weight:500;
@@ -42,13 +42,13 @@
   .card.blue  { border-left:3px solid var(--blue); }
   .card.red   { border-left:3px solid var(--red); }
   .card h3 { font-size:.64em; margin:0 0 .12em; }
-  .card p  { font-size:.52em; margin:0; color:#b8b8d0; }
+  .card p  { font-size:.52em; margin:0; color:#b9c8bc; }
   .card ul { margin:0; padding-left:1em; }
-  .card li { font-size:.52em; color:#b8b8d0; margin-bottom:.02em; }
+  .card li { font-size:.52em; color:#b9c8bc; margin-bottom:.02em; }
   .reveal table { width:100%; border-collapse:collapse; font-size:.5em; }
   .reveal table th { background:var(--bg3); color:var(--amber); font-weight:600; padding:.2em .4em; border:1px solid var(--border); text-align:left; }
-  .reveal table td { padding:.18em .4em; border:1px solid var(--border); color:#ccc; }
-  .reveal table tr:nth-child(even) td { background:#0e0e18; }
+  .reveal table td { padding:.18em .4em; border:1px solid var(--border); color:#ccd5c7; }
+  .reveal table tr:nth-child(even) td { background:#122820; }
   .a{color:var(--amber);font-weight:600;} .g{color:var(--green);font-weight:600;}
   .p{color:var(--purple);font-weight:600;} .b{color:var(--blue);font-weight:600;}
   .r{color:var(--red);font-weight:600;} .mono{font-family:'JetBrains Mono',monospace;}
@@ -62,8 +62,8 @@
   .title-slide .meta{font-size:.48em; color:var(--muted); font-family:'JetBrains Mono',monospace;}
   .ss-row{display:flex; gap:.25em; align-items:center; margin:.1em 0; font-size:.55em; font-family:'JetBrains Mono',monospace;}
   .ss-node{padding:.2em .55em; border-radius:5px; font-size:.9em; background:var(--bg3); border:1px solid var(--border); color:var(--text);}
-  .ss-node.active{background:#1a2a1a; border-color:var(--green); color:var(--green);}
-  .ss-node.done{background:#1a1a2a; border-color:var(--purple); color:var(--purple);}
+  .ss-node.active{background:#2f3e35; border-color:var(--green); color:var(--green);}
+  .ss-node.done{background:#19342a; border-color:var(--purple); color:var(--purple);}
   .ss-arrow{color:var(--amber);}
   .reveal ul, .reveal ol { margin:.15em 0 .15em 1em; }
   .reveal .slides > section { display:flex !important; flex-direction:column !important; overflow-y:auto !important; align-items:stretch !important; justify-content:flex-start !important; }
@@ -75,7 +75,7 @@
 
 
 <!-- ═══ SLIDE 01 — TITLE ═══ -->
-<section class="title-slide" data-background-color="#0a0a0f">
+<section class="title-slide" data-background-color="#0f231c">
   <div style="text-align:left; max-width:820px; margin:0 auto; padding:1em 0;">
     <div style="font-family:'JetBrains Mono',monospace; font-size:.5em; color:var(--muted); margin-bottom:.4em; letter-spacing:.1em;">
       TECHNICAL PRESENTATION
@@ -98,7 +98,7 @@
       <span class="ss-arrow">→</span>
       <span class="ss-node done">allow / deny</span>
     </div>
-    <p style="max-width:660px; color:#a0a0c0; font-size:.56em; line-height:1.5; margin-top:1em;">
+    <p style="max-width:660px; color:#9fb3a8; font-size:.56em; line-height:1.5; margin-top:1em;">
       Once you've authenticated the user and got a token — what may they actually do? The decision-making layer the rest of the Identity &amp; Access series feeds into.
     </p>
     <div class="meta" style="margin-top:1.4em;">
@@ -109,7 +109,7 @@
 
 
 <!-- ═══ SLIDE 02 — TOPICS ═══ -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#0f231c">
   <div class="slide-hdr"><span class="tag">01</span><h2>Topics</h2></div>
   <div class="cols cols-2">
     <div>
@@ -155,46 +155,46 @@
 
 
 <!-- ═══ SLIDE 03 — PEP/PDP ═══ -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#0f231c">
   <div class="slide-hdr"><span class="tag">02</span><h2>The PEP / PDP / PAP / PIP Vocabulary</h2></div>
   <p>Every authorisation system separates "asking the question" from "answering it" from "where the rules live" from "where the data lives". The four-letter abbreviations come from XACML, but the architecture survives every modern engine.</p>
 
   <svg class="diagram" viewBox="0 0 940 280" width="900" height="280">
-    <rect x="20"  y="40" width="180" height="60" rx="8" fill="#1a1a2a" stroke="#60a5fa" stroke-width="1.5"/>
-    <text x="110" y="65" text-anchor="middle" fill="#60a5fa" font-family="Playfair Display,serif" font-size="14" font-weight="700">PEP</text>
-    <text x="110" y="83" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono,monospace" font-size="9">Policy Enforcement Point</text>
-    <text x="110" y="96" text-anchor="middle" fill="#888" font-family="JetBrains Mono,monospace" font-size="8">app code, gateway, sidecar</text>
+    <rect x="20"  y="40" width="180" height="60" rx="8" fill="#19342a" stroke="#93b6cd" stroke-width="1.5"/>
+    <text x="110" y="65" text-anchor="middle" fill="#93b6cd" font-family="Playfair Display,serif" font-size="14" font-weight="700">PEP</text>
+    <text x="110" y="83" text-anchor="middle" fill="#ccd5c7" font-family="JetBrains Mono,monospace" font-size="9">Policy Enforcement Point</text>
+    <text x="110" y="96" text-anchor="middle" fill="#7c968b" font-family="JetBrains Mono,monospace" font-size="8">app code, gateway, sidecar</text>
 
-    <rect x="380" y="40" width="180" height="60" rx="8" fill="#1a1a2a" stroke="#a78bfa" stroke-width="1.5"/>
-    <text x="470" y="65" text-anchor="middle" fill="#a78bfa" font-family="Playfair Display,serif" font-size="14" font-weight="700">PDP</text>
-    <text x="470" y="83" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono,monospace" font-size="9">Policy Decision Point</text>
-    <text x="470" y="96" text-anchor="middle" fill="#888" font-family="JetBrains Mono,monospace" font-size="8">OPA, Cedar, OpenFGA, …</text>
+    <rect x="380" y="40" width="180" height="60" rx="8" fill="#19342a" stroke="#b2a3d0" stroke-width="1.5"/>
+    <text x="470" y="65" text-anchor="middle" fill="#b2a3d0" font-family="Playfair Display,serif" font-size="14" font-weight="700">PDP</text>
+    <text x="470" y="83" text-anchor="middle" fill="#ccd5c7" font-family="JetBrains Mono,monospace" font-size="9">Policy Decision Point</text>
+    <text x="470" y="96" text-anchor="middle" fill="#7c968b" font-family="JetBrains Mono,monospace" font-size="8">OPA, Cedar, OpenFGA, …</text>
 
-    <rect x="740" y="20" width="180" height="50" rx="8" fill="#1a1a2a" stroke="#f5a623" stroke-width="1.5"/>
-    <text x="830" y="42" text-anchor="middle" fill="#f5a623" font-family="Playfair Display,serif" font-size="14" font-weight="700">PAP</text>
-    <text x="830" y="58" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono,monospace" font-size="9">Policy Admin Point — git / UI</text>
+    <rect x="740" y="20" width="180" height="50" rx="8" fill="#19342a" stroke="#cfad64" stroke-width="1.5"/>
+    <text x="830" y="42" text-anchor="middle" fill="#cfad64" font-family="Playfair Display,serif" font-size="14" font-weight="700">PAP</text>
+    <text x="830" y="58" text-anchor="middle" fill="#ccd5c7" font-family="JetBrains Mono,monospace" font-size="9">Policy Admin Point — git / UI</text>
 
-    <rect x="740" y="100" width="180" height="50" rx="8" fill="#1a1a2a" stroke="#4ecb8d" stroke-width="1.5"/>
-    <text x="830" y="122" text-anchor="middle" fill="#4ecb8d" font-family="Playfair Display,serif" font-size="14" font-weight="700">PIP</text>
-    <text x="830" y="138" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono,monospace" font-size="9">Policy Information Point — DB / IdP</text>
+    <rect x="740" y="100" width="180" height="50" rx="8" fill="#19342a" stroke="#8fc9a1" stroke-width="1.5"/>
+    <text x="830" y="122" text-anchor="middle" fill="#8fc9a1" font-family="Playfair Display,serif" font-size="14" font-weight="700">PIP</text>
+    <text x="830" y="138" text-anchor="middle" fill="#ccd5c7" font-family="JetBrains Mono,monospace" font-size="9">Policy Information Point — DB / IdP</text>
 
-    <line x1="200" y1="70" x2="380" y2="70" stroke="#888" stroke-width="1.2" marker-end="url(#az03a)"/>
-    <text x="290" y="62" text-anchor="middle" fill="#888" font-family="JetBrains Mono,monospace" font-size="9">"may S do A on R, given context C?"</text>
+    <line x1="200" y1="70" x2="380" y2="70" stroke="#7c968b" stroke-width="1.2" marker-end="url(#az03a)"/>
+    <text x="290" y="62" text-anchor="middle" fill="#7c968b" font-family="JetBrains Mono,monospace" font-size="9">"may S do A on R, given context C?"</text>
 
-    <line x1="380" y1="86" x2="200" y2="86" stroke="#888" stroke-width="1.2" marker-end="url(#az03b)"/>
-    <text x="290" y="78" text-anchor="middle" fill="#888" font-family="JetBrains Mono,monospace" font-size="9">allow / deny + obligations</text>
+    <line x1="380" y1="86" x2="200" y2="86" stroke="#7c968b" stroke-width="1.2" marker-end="url(#az03b)"/>
+    <text x="290" y="78" text-anchor="middle" fill="#7c968b" font-family="JetBrains Mono,monospace" font-size="9">allow / deny + obligations</text>
 
-    <line x1="560" y1="60" x2="740" y2="55" stroke="#888" stroke-width="1.2" stroke-dasharray="4,3"/>
-    <text x="650" y="50" text-anchor="middle" fill="#888" font-family="JetBrains Mono,monospace" font-size="9">policy bundle pull</text>
-    <line x1="560" y1="85" x2="740" y2="125" stroke="#888" stroke-width="1.2" stroke-dasharray="4,3"/>
-    <text x="650" y="117" text-anchor="middle" fill="#888" font-family="JetBrains Mono,monospace" font-size="9">attribute lookup</text>
+    <line x1="560" y1="60" x2="740" y2="55" stroke="#7c968b" stroke-width="1.2" stroke-dasharray="4,3"/>
+    <text x="650" y="50" text-anchor="middle" fill="#7c968b" font-family="JetBrains Mono,monospace" font-size="9">policy bundle pull</text>
+    <line x1="560" y1="85" x2="740" y2="125" stroke="#7c968b" stroke-width="1.2" stroke-dasharray="4,3"/>
+    <text x="650" y="117" text-anchor="middle" fill="#7c968b" font-family="JetBrains Mono,monospace" font-size="9">attribute lookup</text>
 
-    <text x="465" y="210" text-anchor="middle" fill="#888" font-family="DM Sans,sans-serif" font-size="11">PEP asks the question. PDP decides. PAP curates the policy. PIP supplies missing facts.</text>
-    <text x="465" y="232" text-anchor="middle" fill="#888" font-family="DM Sans,sans-serif" font-size="11">The model lets you change the engine, the policy language, or the data source independently.</text>
+    <text x="465" y="210" text-anchor="middle" fill="#7c968b" font-family="DM Sans,sans-serif" font-size="11">PEP asks the question. PDP decides. PAP curates the policy. PIP supplies missing facts.</text>
+    <text x="465" y="232" text-anchor="middle" fill="#7c968b" font-family="DM Sans,sans-serif" font-size="11">The model lets you change the engine, the policy language, or the data source independently.</text>
 
     <defs>
-      <marker id="az03a" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#888"/></marker>
-      <marker id="az03b" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#888"/></marker>
+      <marker id="az03a" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#7c968b"/></marker>
+      <marker id="az03b" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#7c968b"/></marker>
     </defs>
   </svg>
 
@@ -224,7 +224,7 @@
 
 
 <!-- ═══ SLIDE 04 — HISTORICAL ARC ═══ -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#0f231c">
   <div class="slide-hdr"><span class="tag">03</span><h2>The Historical Arc — DAC → MAC → RBAC → ABAC → ReBAC</h2></div>
 
   <table>
@@ -277,7 +277,7 @@
 
 
 <!-- ═══ SLIDE 05 — RBAC ═══ -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#0f231c">
   <div class="slide-hdr"><span class="tag">04</span><h2>RBAC — Roles, Hierarchies, Separation of Duties</h2></div>
 
   <div class="cols cols-2">
@@ -331,7 +331,7 @@ roleRef: { kind: Role, name: pod-reader }</code></pre>
 
 
 <!-- ═══ SLIDE 06 — ABAC ═══ -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#0f231c">
   <div class="slide-hdr"><span class="tag">05</span><h2>ABAC — Attributes &amp; Predicates</h2></div>
   <p>Instead of pre-clustering users into roles, ABAC writes a <em>predicate</em> over the request and the world. A role becomes a special case ("subject.role == admin"), but you can also express things RBAC can't: time-of-day, IP range, classification level, ownership.</p>
 
@@ -384,7 +384,7 @@ roleRef: { kind: Role, name: pod-reader }</code></pre>
 
 
 <!-- ═══ SLIDE 07 — REBAC / ZANZIBAR ═══ -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#0f231c">
   <div class="slide-hdr"><span class="tag">06</span><h2>ReBAC &amp; Google Zanzibar</h2></div>
   <p>Google's 2019 paper "Zanzibar: Google's Consistent, Global Authorization System" described the system that powers Drive, Calendar, YouTube, Cloud, and most of Google's product surface. It's a <em>relationship</em>-based model implemented as a globally-consistent tuple store.</p>
 
@@ -441,7 +441,7 @@ type group {
 
 
 <!-- ═══ SLIDE 08 — POLICY-AS-CODE ═══ -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#0f231c">
   <div class="slide-hdr"><span class="tag">07</span><h2>Policy-as-Code — The Class of Tools</h2></div>
   <p>Policy-as-Code (PaC) means: the rules live in version-controlled files, are reviewed in PRs, are tested with unit tests, and are deployed by a pipeline. The actual policy language varies — Rego, Cedar, internal DSLs — but the engineering practice is the same.</p>
 
@@ -466,7 +466,7 @@ type group {
 
 
 <!-- ═══ SLIDE 09 — OPA / REGO ═══ -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#0f231c">
   <div class="slide-hdr"><span class="tag">08</span><h2>OPA &amp; Rego — The General-Purpose Engine</h2></div>
 
   <div class="cols cols-2">
@@ -530,7 +530,7 @@ deny if {
 
 
 <!-- ═══ SLIDE 10 — CEDAR ═══ -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#0f231c">
   <div class="slide-hdr"><span class="tag">09</span><h2>Cedar — The App-Level Specialist</h2></div>
   <p>AWS published Cedar in 2023 (Apache 2.0 + the AWS-hosted Verified Permissions service). Designed from a formal-methods background: deliberately small, deliberately analysable, deliberately app-level.</p>
 
@@ -585,7 +585,7 @@ forbid (
 
 
 <!-- ═══ SLIDE 11 — OPENFGA / SPICEDB ═══ -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#0f231c">
   <div class="slide-hdr"><span class="tag">10</span><h2>OpenFGA &amp; SpiceDB — Zanzibar-Class Engines</h2></div>
 
   <div class="cols cols-2">
@@ -654,7 +654,7 @@ check document:report1 can_view user:bob   → allow</code></pre>
 
 
 <!-- ═══ SLIDE 12 — DEPLOYMENT TOPOLOGIES ═══ -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#0f231c">
   <div class="slide-hdr"><span class="tag">11</span><h2>Deployment Topologies — In-App, Sidecar, External</h2></div>
 
   <div class="cols cols-3">
@@ -701,7 +701,7 @@ check document:report1 can_view user:bob   → allow</code></pre>
 
 
 <!-- ═══ SLIDE 13 — CACHING / PERFORMANCE ═══ -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#0f231c">
   <div class="slide-hdr"><span class="tag">12</span><h2>Performance — Decisions Per Second, Caching, Indexes</h2></div>
 
   <div class="cols cols-2">
@@ -749,7 +749,7 @@ check document:report1 can_view user:bob   → allow</code></pre>
 
 
 <!-- ═══ SLIDE 14 — AUDIT / EXPLAINABILITY ═══ -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#0f231c">
   <div class="slide-hdr"><span class="tag">13</span><h2>Audit &amp; Explainability — What Auditors Actually Want</h2></div>
 
   <div class="cols cols-2">
@@ -803,7 +803,7 @@ check document:report1 can_view user:bob   → allow</code></pre>
 
 
 <!-- ═══ SLIDE 15 — TIE TO IDENTITY ═══ -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#0f231c">
   <div class="slide-hdr"><span class="tag">14</span><h2>Tying AuthZ to AuthN &amp; Identity</h2></div>
   <p>An authorisation engine is only as good as the facts it gets about the subject. Those facts come from the rest of the Identity &amp; Access stack.</p>
 
@@ -835,7 +835,7 @@ check document:report1 can_view user:bob   → allow</code></pre>
 
 
 <!-- ═══ SLIDE 16 — CHOOSING ═══ -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#0f231c">
   <div class="slide-hdr"><span class="tag">15</span><h2>Choosing a Model — Decision Matrix</h2></div>
 
   <table>
@@ -860,7 +860,7 @@ check document:report1 can_view user:bob   → allow</code></pre>
 
 
 <!-- ═══ SLIDE 17 — MIGRATION ═══ -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#0f231c">
   <div class="slide-hdr"><span class="tag">16</span><h2>Migration Patterns</h2></div>
 
   <div class="cols cols-2">
@@ -908,7 +908,7 @@ check document:report1 can_view user:bob   → allow</code></pre>
 
 
 <!-- ═══ SLIDE 18 — REFERENCE ARCHITECTURES ═══ -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#0f231c">
   <div class="slide-hdr"><span class="tag">17</span><h2>Reference Architectures by Domain</h2></div>
 
   <table>
@@ -952,7 +952,7 @@ check document:report1 can_view user:bob   → allow</code></pre>
 
 
 <!-- ═══ SLIDE 19 — GOTCHAS ═══ -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#0f231c">
   <div class="slide-hdr"><span class="tag">18</span><h2>Production Gotchas</h2></div>
 
   <div class="cols cols-2">
@@ -997,7 +997,7 @@ check document:report1 can_view user:bob   → allow</code></pre>
 
 
 <!-- ═══ SLIDE 20 — SUMMARY ═══ -->
-<section data-background-color="#0a0a0f">
+<section data-background-color="#0f231c">
   <div class="slide-hdr"><span class="tag">19</span><h2>Summary &amp; References</h2></div>
 
   <div class="cols cols-2">
